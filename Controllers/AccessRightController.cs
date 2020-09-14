@@ -20,14 +20,14 @@ namespace AllPrime.EndPoint.Controllers
         //private readonly AccessPointRepository _accessPointRepository;
 
         // GET api/values
-        [Route("")]
-        public IHttpActionResult GetAccessPoint()
+        [Route("GetAccessRights")]
+        public IHttpActionResult GetAccessRights()
         {
             try
             {
                 using (IntegraContext integ = new IntegraContext())
                 {
-                    var resp = integ.AccessPoints.ToList();
+                    var resp = integ.Accessright.ToList();
 
                     return Ok(resp);
                 }
@@ -39,23 +39,23 @@ namespace AllPrime.EndPoint.Controllers
             }
         }
 
-        [Route("{id:int:min(1)}")]
+        [Route("GetAccessRights/{id:int:min(1)}")]
         // GET api/values/5
-        public IHttpActionResult GetAccessPoint(int id)
+        public IHttpActionResult GetAccessRights(int id)
 
         {
             try
             {
                 using (IntegraContext integ = new IntegraContext())
                 {
-                    var resp = integ.AccessPoints.FirstOrDefault(e => e.AP_ID == id);
+                    var resp = integ.Accessright.FirstOrDefault(e => e.AccessRightId == id);
                     if (resp != null)
                     {
                         return Ok(resp);
                     }
                     else
                     {
-                        return Content(HttpStatusCode.NotFound, "AccessPoint with ID " + id.ToString() + " not found");
+                        return Content(HttpStatusCode.NotFound, "AccessRight with ID " + id.ToString() + " not found");
                     }
                 }
             }
@@ -65,23 +65,30 @@ namespace AllPrime.EndPoint.Controllers
             }
         }
 
-        [Route("GetAccessPointByGroup/{id:int:min(1)}")]
+        [Route("GetAccessRightsByProfile/{id:int:min(1)}")]
         // GET api/values/5
-        public IHttpActionResult GetAccessPointByGroup(int id)
+        public IHttpActionResult GetAccessRightsByProfile(int id)
 
         {
             try
             {
                 using (IntegraContext integ = new IntegraContext())
                 {
-                    var resp = integ.AccessPoints.FirstOrDefault(e => e.AP_GROUP_ID == id);
+                    var resp = integ.Accessrightaccessprofiles.Select(lk => new
+                    {
+                        AccessProfileID= lk.AccessProfileId,
+                        AccessRightID = lk.AccessRight,
+                        _AccessRightName = lk.AccessRight.AccessRightName,
+                        AccessCreationDate = lk.AccessRight._CreationDate
+
+                    }).Where(e => e.AccessProfileID == id).ToList();
                     if (resp != null)
                     {
-                        return Ok(resp);
+                        return Content(HttpStatusCode.OK, resp);
                     }
                     else
                     {
-                        return Content(HttpStatusCode.NotFound, "AccessPointGroup with ID " + id.ToString() + " not found");
+                        return Content(HttpStatusCode.NotFound, "AccessProfile with ID " + id.ToString() + " not found");
                     }
                 }
             }
@@ -92,19 +99,19 @@ namespace AllPrime.EndPoint.Controllers
         }
 
         // POST api/values
-        [Route("CreateAccessPoint")]
+        [Route("CreateAccessRight")]
         [HttpPost]
-        public IHttpActionResult CreateAccessPoint([FromBody] AccessPoints access)
+        public IHttpActionResult CreateAccessPoint([FromBody] Accessright access)
         {
             try
             {
                 using (IntegraContext integ = new IntegraContext())
                 {
-                    integ.AccessPoints.Add(access);
+                    integ.Accessright.Add(access);
                     integ.SaveChanges();
 
                     var mess = Request.CreateResponse(HttpStatusCode.Created, access);
-                    mess.Headers.Location = new Uri(Request.RequestUri + access.AP_ID.ToString());
+                    mess.Headers.Location = new Uri(Request.RequestUri + access.AccessRightId.ToString());
                     return Ok(mess);
                 }
             }
@@ -115,34 +122,25 @@ namespace AllPrime.EndPoint.Controllers
         }
 
         // PUT api/values/5
-        [Route("UpdateAccessPoint/{id:int:min(1)}")]
+        [Route("UpdateAccessRight/{id:int:min(1)}")]
         [HttpPut]
-        public IHttpActionResult Put(int id, [FromBody] AccessPoints access)
+        public IHttpActionResult Put(int id, [FromBody] Accessright access)
         {
             try
             {
                 using (IntegraContext integ = new IntegraContext())
                 {
-                    var resp = integ.AccessPoints.FirstOrDefault(e => e.AP_ID == id);
+                    var resp = integ.Accessright.FirstOrDefault(e => e.AccessRightId == id);
                     if (resp == null)
                     {
-                        return Content(HttpStatusCode.NotFound, "AccessPoint with ID " + id.ToString() + " not found to update");
+                        return Content(HttpStatusCode.NotFound, "AccessRight with ID " + id.ToString() + " not found to update");
                     }
                     else
                     {
-                        resp.AP_ID = access.AP_ID;
-                        resp.AP_IP_ADDR = access.AP_IP_ADDR;
-                        resp.AP_COMID = access.AP_COMID;
-                        resp.AP_SUBNETMASK = access.AP_SUBNETMASK;
-                        resp.AP_GETWAY = access.AP_GETWAY;
-                        resp.AP_NAME = access.AP_NAME;
-                        resp.AP_ONLINESTATUS = access.AP_ONLINESTATUS;
-                        resp.AP_FWVERSION = access.AP_FWVERSION;
-                        resp.AP_LASTCOMMUNICATION = access.AP_LASTCOMMUNICATION;
-                        resp.AP_CONNECTED_LOCK = access.AP_CONNECTED_LOCK;
-                        resp.AP_PHY_ADDR = access.AP_PHY_ADDR;
-                        resp.AP_GROUP_ID = access.AP_GROUP_ID;
-
+                        resp.AccessRightName = access.AccessRightName;
+                        resp._CreationDate = access._CreationDate;
+                        resp._UpdatedDate = access._UpdatedDate;
+          
                         integ.SaveChanges();
 
                         return Ok(resp);
@@ -159,7 +157,7 @@ namespace AllPrime.EndPoint.Controllers
         // DELETE api/values/5
         [Route("DeleteAccessRight/{id:int:min(1)}")]
         [HttpDelete]
-        public IHttpActionResult Delete(int id)
+        public IHttpActionResult DeleteAccessRight(int id)
         {
             try
             {
@@ -169,7 +167,7 @@ namespace AllPrime.EndPoint.Controllers
 
                     if (resp == null)
                     {
-                        return Content(HttpStatusCode.NotFound, "AccessPointRight with ID " + id.ToString() + " not found to delete");
+                        return Content(HttpStatusCode.NotFound, "AccessRight with ID " + id.ToString() + " not found to delete");
                     }
                     else
                     {
