@@ -11,6 +11,7 @@ using System.Web.Http.Cors;
 using System.Data.Entity;
 using AutoMapper;
 using Core.DTOs;
+using Core.Enities;
 
 namespace AllPrime.EndPoint.Controllers
 {
@@ -38,6 +39,33 @@ namespace AllPrime.EndPoint.Controllers
             catch(Exception ex) 
             {
 
+                return Content(HttpStatusCode.NotFound, ex.Message);
+            }
+        }
+
+        [Route("BulkAction")]
+        [HttpPost]
+        // GET api/values/5
+        public IHttpActionResult BulkAction([FromBody] AccessPointFilter accessPointFilter)
+        {
+            try
+            {
+                var actiontype = accessPointFilter.ActionType;
+                var filter = accessPointFilter.Filter;
+                var templ = accessPointFilter.Templates;
+                using (IntegraContext integ = new IntegraContext())
+                {
+
+                    
+                        
+                    
+
+                }
+                return Content(HttpStatusCode.OK, "");
+
+            }
+            catch (Exception ex)
+            {
                 return Content(HttpStatusCode.NotFound, ex.Message);
             }
         }
